@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
 import { ToastContainer, toast } from "react-toastify";
 import Todo from "./Todo";
-import todoImage from "../assets/todo.png";
+import taskLogo from "../assets/tasks.png"
 import "react-toastify/dist/ReactToastify.css";
 import "./style.css";
 
@@ -12,6 +13,18 @@ const TodoList = () => {
 	const [filter, setFilter] = useState("all"); // Holds the current filter type
 	const [isLoading, setIsLoading] = useState(true); // Indicates whether the data is being loaded
 	const [editTaskId, setEditTaskId] = useState(null); // Holds the ID of the task being edited
+
+	// const [data, setData] = useState('');
+	// const provider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+	// const contractAddress = '0x123456789...'; // Replace with your contract address
+	// const contractABI = [...]; // Replace with your contract's ABI
+
+	// const contract = new ethers.Contract(contractAddress, contractABI, provider);
+	// async function getDataFromContract() {
+	//   const data = await contract.getData();
+	//   console.log(data);
+	//   setData(data);
+	// }
 
 	// Fetch initial data
 	useEffect(() => {
@@ -28,7 +41,6 @@ const TodoList = () => {
 			setTasks(todos);
 			setIsLoading(false);
 		} catch (error) {
-			console.log("Error fetching todos:", error);
 			setIsLoading(false);
 		}
 	};
@@ -65,7 +77,6 @@ const TodoList = () => {
 			setInputValue("");
 			toast.success("Task added successfully");
 		} catch (error) {
-			console.log("Error adding task:", error);
 			toast.error("Error adding task");
 		}
 	};
@@ -126,7 +137,6 @@ const TodoList = () => {
 			setEditTaskId(null);
 			toast.success("Task updated successfully");
 		} catch (error) {
-			console.log("Error updating task:", error);
 			toast.error("Error updating task");
 		}
 	};
@@ -150,12 +160,10 @@ const TodoList = () => {
 
 	// Render the todo list
 	return (
-		<div className="container">
+		<div className="contaner">
 			<ToastContainer />
 			<div className="todo-app">
-				<h2>
-					<img src={todoImage} alt="todo-image" /> Todo List
-				</h2>
+				<p class="title is-1 has-text-centered head"> <img src={taskLogo} alt="task-logo" /> Task Tracker</p>
 				<div className="row">
 					<i className="fas fa-list-check"></i>
 					<input
@@ -169,6 +177,7 @@ const TodoList = () => {
 					/>
 					<button
 						id="btn"
+						class="button is-link add-btn"
 						onClick={editTaskId ? handleUpdateTask : handleAddTask}
 					>
 						{editTaskId ? "Update" : "Add"}
@@ -176,13 +185,20 @@ const TodoList = () => {
 				</div>
 
 				<div className="mid">
-					<i className="fas fa-check-double"></i>
-					<p id="complete-all" onClick={handleCompleteAll}>
+					<button
+						id="complete-all"
+						onClick={handleCompleteAll}
+						class="button is-primary is-inverted"
+					>
 						Complete all tasks
-					</p>
-					<p id="clear-all" onClick={handleClearCompleted}>
+					</button>
+					<button
+						id="clear-all"
+						onClick={handleClearCompleted}
+						class="button is-danger is-inverted"
+					>
 						Delete comp tasks
-					</p>
+					</button>
 				</div>
 
 				<Todo
@@ -196,25 +212,19 @@ const TodoList = () => {
 
 				<div className="filters">
 					<div className="dropdown">
-						<button className="dropbtn">Filter</button>
+						<button className="dropbtn button is-success is-medium">
+							Filter
+						</button>
 						<div className="dropdown-content">
-							<a href="#" id="all" onClick={() => handleFilterChange("all")}>
+							<p id="all" onClick={() => handleFilterChange("all")}>
 								All
-							</a>
-							<a
-								href="#"
-								id="rem"
-								onClick={() => handleFilterChange("uncompleted")}
-							>
+							</p>
+							<p id="rem" onClick={() => handleFilterChange("uncompleted")}>
 								Uncompleted
-							</a>
-							<a
-								href="#"
-								id="com"
-								onClick={() => handleFilterChange("completed")}
-							>
+							</p>
+							<p id="com" onClick={() => handleFilterChange("completed")}>
 								Completed
-							</a>
+							</p>
 						</div>
 					</div>
 

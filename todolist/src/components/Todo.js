@@ -41,14 +41,14 @@ const Todo = (props) => {
 					<div>
 						<img
 							src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png"
-							className="edit"
+							className="edit-btn"
 							data-id={task.id}
 							onClick={() => handleEditTask(task.id)}
 							alt="edit-button"
 						/>
 						<img
 							src="https://cdn-icons-png.flaticon.com/128/3096/3096673.png"
-							className="delete"
+							className="delete-btn"
 							data-id={task.id}
 							onClick={() => handleDeleteTask(task.id)}
 							alt="delete-button"
