@@ -2,61 +2,73 @@ const Todo = (props) => {
 	const {
 		tasks,
 		filter,
-		isLoading,
-		handleTaskCheckboxChange,
-		handleEditTask,
-		handleDeleteTask,
+		loading,
+		toggleCompleted,
+		setEditTaskId,
+		setNewTaskContent,
+		deleteTask,
 	} = props;
 
 	// Filter tasks based on the selected filter
-	const filteredTasks = tasks.filter((task) => {
-		if (filter === "all") {
-			return true;
-		} else if (filter === "completed") {
-			return task.completed;
-		} else if (filter === "uncompleted") {
-			return !task.completed;
-		}
-		return true;
-	});
-
-	// Display loading message while data is being fetched
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
+	// const filteredTasks = tasks
+	// 	.filter((t) => t.content)
+	// 	.filter((task) => {
+	// 		if (filter === "all") {
+	// 			return true;
+	// 		} else if (filter === "completed") {
+	// 			return task.completed;
+	// 		} else if (filter === "uncompleted") {
+	// 			return !task.completed;
+	// 		}
+	// 		return true;
+	// 	});
+		console.log(toggleCompleted, "toggle");
 
 	return (
-		<ul id="list">
-			{filteredTasks.map((task) => (
-				<li key={task.id}>
-					<input
-						type="checkbox"
-						id={`task-${task.id}`}
-						data-id={task.id}
-						className="custom-checkbox"
-						checked={task.completed}
-						onChange={() => handleTaskCheckboxChange(task.id)}
-					/>
-					<label htmlFor={`task-${task.id}`}>{task.title}</label>
-					<div>
-						<img
-							src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png"
-							className="edit-btn"
-							data-id={task.id}
-							onClick={() => handleEditTask(task.id)}
-							alt="edit-button"
-						/>
-						<img
-							src="https://cdn-icons-png.flaticon.com/128/3096/3096673.png"
-							className="delete-btn"
-							data-id={task.id}
-							onClick={() => handleDeleteTask(task.id)}
-							alt="delete-button"
-						/>
-					</div>
-				</li>
-			))}
-		</ul>
+		<>
+			{loading ? (
+				<div>Loading...</div>
+			) : (
+				<ul id="list">
+					{
+					tasks
+						.filter((t) => t.content)
+						.map((task) => {
+							console.log(task, "props, task")
+							return (
+								<li key={task.id}>
+									<input
+										type="checkbox"
+										name={task.id}
+										className="custom-checkbox"
+										defaultChecked={task.completed}
+										onClick={(event) => {
+											console.log("here todo", "toggle");
+											 toggleCompleted(task.id);
+										}} />
+									<label>{task.content}</label>
+									<div>
+										<img
+											src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png"
+											className="edit-btn"
+											onClick={() => {
+												setEditTaskId(task.id);
+												setNewTaskContent(task.content);
+											} }
+											alt="edit-button" />
+										<img
+											src="https://cdn-icons-png.flaticon.com/128/3096/3096673.png"
+											className="delete-btn"
+											onClick={() => deleteTask(task.id)}
+											alt="delete-button" />
+									</div>
+								</li>
+							);
+						})
+						}
+				</ul>
+			)}
+		</>
 	);
 };
 

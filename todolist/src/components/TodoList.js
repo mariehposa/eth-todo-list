@@ -1,144 +1,99 @@
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
-import { ToastContainer, toast } from "react-toastify";
-import Todo from "./Todo";
-import taskLogo from "../assets/tasks.png"
+import Web3 from "web3";
+import { ToastContainer } from "react-toastify";
+import { TODO_LIST_ABI, TODO_LIST_ADDRESS } from "../config";
+import Todo from "./Todo.js";
+import taskLogo from "../assets/tasks.png";
 import "react-toastify/dist/ReactToastify.css";
 import "./style.css";
 
 const TodoList = () => {
-	// State variables
-	const [tasks, setTasks] = useState([]); // Holds the list of tasks
-	const [inputValue, setInputValue] = useState(""); // Holds the value of the input field
+	const [account, setAccount] = useState(0);
+	const [loading, setLoading] = useState(false);
+	const [todoList, setTodoList] = useState(null);
+
+	const [tasks, setTasks] = useState([]);
+	const [newTaskContent, setNewTaskContent] = useState("");
+	const [editTaskId, setEditTaskId] = useState(0);
+	const [taskCount, setTaskCount] = useState(0);
+
 	const [filter, setFilter] = useState("all"); // Holds the current filter type
-	const [isLoading, setIsLoading] = useState(true); // Indicates whether the data is being loaded
-	const [editTaskId, setEditTaskId] = useState(null); // Holds the ID of the task being edited
 
-	// const [data, setData] = useState('');
-	// const provider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID');
-	// const contractAddress = '0x123456789...'; // Replace with your contract address
-	// const contractABI = [...]; // Replace with your contract's ABI
-
-	// const contract = new ethers.Contract(contractAddress, contractABI, provider);
-	// async function getDataFromContract() {
-	//   const data = await contract.getData();
-	//   console.log(data);
-	//   setData(data);
-	// }
-
-	// Fetch initial data
 	useEffect(() => {
-		fetchTodos();
+		loadBlockchainData();
 	}, []);
 
-	// Fetch todos from an API
-	const fetchTodos = async () => {
-		try {
-			const response = await fetch(
-				"https://jsonplaceholder.typicode.com/todos?_limit=4"
-			);
-			const todos = await response.json();
-			setTasks(todos);
-			setIsLoading(false);
-		} catch (error) {
-			setIsLoading(false);
-		}
-	};
+	async function loadBlockchainData() {
+		const web3 = new Web3(Web3.givenProvider || "http://localhost:7545");
+		const accounts = await web3.eth.getAccounts();
+		setAccount(accounts[0]);
 
-	// Handle input change
-	const handleInputChange = (event) => {
-		setInputValue(event.target.value);
-	};
+		const todoList = new web3.eth.Contract(TODO_LIST_ABI, TODO_LIST_ADDRESS);
+		setTodoList(todoList);
 
-	// Add a new task
-	const handleAddTask = async () => {
-		if (inputValue.trim() === "") {
-			return;
+		const taskCount = await todoList.methods.taskCount().call();
+		setTaskCount(taskCount);
+
+		const arr = [];
+		for (var i = 1; i <= taskCount; i++) {
+			const task = await todoList.methods.tasks(i).call();
+			arr.push(task);
 		}
 
-		const newTask = {
-			title: inputValue,
-			completed: false,
-		};
+		setTasks(arr);
+		setLoading(false);
+	}
 
-		try {
-			const response = await fetch(
-				"https://jsonplaceholder.typicode.com/todos",
-				{
-					method: "POST",
-					body: JSON.stringify(newTask),
-					headers: {
-						"Content-type": "application/json; charset=UTF-8",
-					},
-				}
-			);
-			const addedTask = await response.json();
-			setTasks((prevTasks) => [...prevTasks, addedTask]);
-			setInputValue("");
-			toast.success("Task added successfully");
-		} catch (error) {
-			toast.error("Error adding task");
-		}
+	const addTask = (content) => {
+		setLoading(true);
+
+		todoList.methods
+			.addTask(content)
+			.send({ from: account })
+			.once("receipt", (receipt) => {
+				setLoading(false);
+				setNewTaskContent("");
+				loadBlockchainData();
+			});
 	};
 
-	// Handle checkbox change for a task
-	const handleTaskCheckboxChange = (taskId) => {
-		setTasks((prevTasks) =>
-			prevTasks.map((task) =>
-				task.id === taskId ? { ...task, completed: !task.completed } : task
-			)
-		);
+	const toggleCompleted = (taskId) => {
+		// setLoading(true);
+
+		console.log(taskId, "toggle");
+		todoList.methods
+			.toggleCompleted(taskId)
+			.send({ from: account })
+			.once("receipt", (receipt) => {
+				setLoading(false);
+				loadBlockchainData();
+			});
 	};
 
-	// Delete a task
-	const handleDeleteTask = (taskId) => {
-		setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-		toast.success("Task deleted successfully");
+	const editTask = () => {
+		setLoading(true);
+
+		todoList.methods
+			.editTask(editTaskId, newTaskContent)
+			.send({ from: account })
+			.once("receipt", (receipt) => {
+				setLoading(false);
+				setNewTaskContent("");
+				setEditTaskId(0);
+				loadBlockchainData();
+			});
 	};
 
-	// Edit a task
-	const handleEditTask = (taskId) => {
-		setEditTaskId(taskId);
-		const taskToEdit = tasks.find((task) => task.id === taskId);
-		setInputValue(taskToEdit.title);
-	};
+	const deleteTask = (taskId) => {
+		setLoading(true);
 
-	// Update a task
-	const handleUpdateTask = async () => {
-		if (inputValue.trim() === "") {
-			return;
-		}
-
-		const updatedTask = {
-			title: inputValue,
-			completed: false,
-		};
-
-		try {
-			const response = await fetch(
-				`https://jsonplaceholder.typicode.com/todos/${editTaskId}`,
-				{
-					method: "PUT",
-					body: JSON.stringify(updatedTask),
-					headers: {
-						"Content-type": "application/json; charset=UTF-8",
-					},
-				}
-			);
-			const updatedTaskData = await response.json();
-			setTasks((prevTasks) =>
-				prevTasks.map((task) =>
-					task.id === editTaskId
-						? { ...task, title: updatedTaskData.title }
-						: task
-				)
-			);
-			setInputValue("");
-			setEditTaskId(null);
-			toast.success("Task updated successfully");
-		} catch (error) {
-			toast.error("Error updating task");
-		}
+		todoList.methods
+			.deleteTask(taskId)
+			.send({ from: account })
+			.once("receipt", (receipt) => {
+				setLoading(false);
+				loadBlockchainData();
+			});
 	};
 
 	// Mark all tasks as completed
@@ -158,12 +113,14 @@ const TodoList = () => {
 		setFilter(filterType);
 	};
 
-	// Render the todo list
 	return (
 		<div className="contaner">
 			<ToastContainer />
 			<div className="todo-app">
-				<p class="title is-1 has-text-centered head"> <img src={taskLogo} alt="task-logo" /> Task Tracker</p>
+				<p class="title is-1 has-text-centered head">
+					{" "}
+					<img src={taskLogo} alt="task-logo" /> Task Tracker
+				</p>
 				<div className="row">
 					<i className="fas fa-list-check"></i>
 					<input
@@ -172,15 +129,18 @@ const TodoList = () => {
 						id="add"
 						placeholder="Add your todo"
 						autoFocus
-						value={inputValue}
-						onChange={handleInputChange}
+						value={newTaskContent}
+						onChange={(e) => setNewTaskContent(e.target.value)}
 					/>
 					<button
 						id="btn"
 						class="button is-link add-btn"
-						onClick={editTaskId ? handleUpdateTask : handleAddTask}
+						onClick={(e) => {
+							e.preventDefault();
+							editTaskId !== 0 ? editTask() : addTask(newTaskContent);
+						}}
 					>
-						{editTaskId ? "Update" : "Add"}
+						{editTaskId !== 0 ? "Update" : "Add Task"}
 					</button>
 				</div>
 
@@ -204,10 +164,11 @@ const TodoList = () => {
 				<Todo
 					tasks={tasks}
 					filter={filter}
-					isLoading={isLoading}
-					handleTaskCheckboxChange={handleTaskCheckboxChange}
-					handleEditTask={handleEditTask}
-					handleDeleteTask={handleDeleteTask}
+					loading={loading}
+					toggleCompleted={toggleCompleted}
+					setEditTaskId={setEditTaskId}
+					setNewTaskContent={setNewTaskContent}
+					deleteTask={deleteTask}
 				/>
 
 				<div className="filters">
@@ -239,7 +200,7 @@ const TodoList = () => {
 					<div className="remaining-task">
 						<p>
 							<span id="total-tasks">
-								Total Tasks: <span id="tasks-counter">{tasks.length}</span>
+								Total Tasks: <span id="tasks-counter">{taskCount}</span>
 							</span>
 						</p>
 					</div>

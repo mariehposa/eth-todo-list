@@ -107,11 +107,11 @@ ul li:hover {
 	height: initial;
 	width: initial;
 	margin-bottom: 0;
-	display: none;
+	/* display: none; */
 	cursor: pointer;
 }
 
-#list label {
+/* #list label {
 	position: relative;
 	cursor: pointer;
 }
@@ -150,7 +150,7 @@ ul li:hover {
 
 #list input:checked + label {
 	text-decoration: line-through;
-}
+} */
 
 .delete-btn {
 	height: 25px;
