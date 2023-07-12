@@ -33,7 +33,7 @@
 .todo-app p img {
 	width: 50px;
 	margin-right: 10px;
-  margin-top: -5px;
+	margin-top: -5px;
 }
 
 /* input box */
@@ -71,8 +71,8 @@ input {
 .mid {
 	display: flex;
 	font-size: 1.2rem;
-	margin-left: 20px;
-	margin-bottom: 30px;
+	justify-content: space-between;
+	margin-bottom: 10px;
 }
 
 #complete-all {
@@ -107,50 +107,13 @@ ul li:hover {
 	height: initial;
 	width: initial;
 	margin-bottom: 0;
-	/* display: none; */
-	cursor: pointer;
-}
-
-/* #list label {
-	position: relative;
-	cursor: pointer;
-}
-
-#list label:before {
-	content: "";
-	-webkit-appearance: none;
-	background-color: transparent;
-	border: 2px solid #0079bf;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),
-		inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05);
-	padding: 10px;
-	display: inline-block;
-	position: relative;
-	vertical-align: middle;
-	cursor: pointer;
 	margin-right: 10px;
+	cursor: pointer;
 }
 
-#list input:checked + label:after {
-	content: "";
-	display: block;
-	position: absolute;
-	top: 2px;
-	left: 9px;
-	width: 6px;
-	height: 14px;
-	border: solid #fff;
-	border-width: 0 2px 2px 0;
-	transform: rotate(45deg);
+#list label {
+	cursor: pointer;
 }
-
-#list input:checked + label:before {
-	background: #0079bf;
-}
-
-#list input:checked + label {
-	text-decoration: line-through;
-} */
 
 .delete-btn {
 	height: 25px;
@@ -210,7 +173,7 @@ h1 {
 .dropdown {
 	position: relative;
 	display: inline-block;
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .dropdown-content {
@@ -244,11 +207,11 @@ h1 {
 .completed-task {
 	display: inline-block;
 	margin-left: 100px;
-  margin-top: 5px;
+	margin-top: 5px;
 }
 
 .remaining-task {
 	display: inline-block;
 	margin-left: 80px;
-  margin-top: 8px;
+	margin-top: 8px;
 }
