@@ -34,12 +34,15 @@ const TodoList = () => {
 		const taskCount = await todoList.methods.taskCount().call();
 		setTaskCount(taskCount);
 
-		const arr = [];
+		var arr = [];
 		for (var i = 1; i <= taskCount; i++) {
 			const task = await todoList.methods.tasks(i).call();
 			arr.push(task);
 		}
 
+		arr = arr.filter((it) => it.content);
+
+		setTaskCount(arr.length);
 		setTasks(arr);
 		setLoading(false);
 	}
@@ -58,9 +61,8 @@ const TodoList = () => {
 	};
 
 	const toggleCompleted = (taskId) => {
-		// setLoading(true);
+		setLoading(true);
 
-		console.log(taskId, "toggle");
 		todoList.methods
 			.toggleCompleted(taskId)
 			.send({ from: account })
@@ -94,18 +96,6 @@ const TodoList = () => {
 				setLoading(false);
 				loadBlockchainData();
 			});
-	};
-
-	// Mark all tasks as completed
-	const handleCompleteAll = () => {
-		setTasks((prevTasks) =>
-			prevTasks.map((task) => ({ ...task, completed: true }))
-		);
-	};
-
-	// Clear completed tasks
-	const handleClearCompleted = () => {
-		setTasks((prevTasks) => prevTasks.filter((task) => !task.completed));
 	};
 
 	// Handle filter change
@@ -145,19 +135,11 @@ const TodoList = () => {
 				</div>
 
 				<div className="mid">
-					<button
-						id="complete-all"
-						onClick={handleCompleteAll}
-						class="button is-primary is-inverted"
-					>
-						Complete all tasks
+					<button id="complete-all" class="button is-primary is-inverted">
+						Tasks
 					</button>
-					<button
-						id="clear-all"
-						onClick={handleClearCompleted}
-						class="button is-danger is-inverted"
-					>
-						Delete comp tasks
+					<button id="clear-all" class="button is-danger is-inverted">
+						Actions
 					</button>
 				</div>
 
